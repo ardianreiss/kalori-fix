@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Diet Flex Tracker</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="app">
+    <section class="hero">
+      <div>
+        <p class="eyebrow">Diet Flex Tracker</p>
+        <h1>Monitoring Kalori + Profil Diet</h1>
+        <p>Hitung kebutuhan kalori dari umur, berat, tinggi, aktivitas, dan tujuan diet. Catat makanan harian dengan makro.</p>
+      </div>
+      <div class="hero-actions">
+        <button id="exportBtn">Export Data</button>
+        <label class="import-btn">
+          Import Data
+          <input type="file" id="importInput" accept="application/json" hidden />
+        </label>
+      </div>
+    </section>
+
+    <section class="grid two">
+      <div class="card">
+        <h2>Profil Tubuh</h2>
+        <form id="profileForm" class="form">
+          <div class="row">
+            <label>Nama <input type="text" id="name" placeholder="Nama lu" /></label>
+            <label>Umur <input type="number" id="age" min="1" placeholder="25" required /></label>
+          </div>
+
+          <div class="row">
+            <label>Gender
+              <select id="gender">
+                <option value="male">Pria</option>
+                <option value="female">Wanita</option>
+              </select>
+            </label>
+            <label>Aktivitas
+              <select id="activity">
+                <option value="1.2">Jarang olahraga</option>
+                <option value="1.375">Ringan, 1-3x/minggu</option>
+                <option value="1.55">Sedang, 3-5x/minggu</option>
+                <option value="1.725">Berat, 6-7x/minggu</option>
+                <option value="1.9">Atlet / kerja fisik berat</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="row">
+            <label>Berat sekarang (kg) <input type="number" id="weight" min="1" step="0.1" placeholder="70" required /></label>
+            <label>Tinggi (cm) <input type="number" id="height" min="1" step="0.1" placeholder="170" required /></label>
+          </div>
+
+          <div class="row">
+            <label>Target berat (kg) <input type="number" id="targetWeight" min="1" step="0.1" placeholder="65" /></label>
+            <label>Goal
+              <select id="goal">
+                <option value="-500">Cutting / turun berat</option>
+                <option value="-250">Defisit ringan</option>
+                <option value="0">Maintenance</option>
+                <option value="250">Naik lean bulk</option>
+                <option value="500">Bulking</option>
+              </select>
+            </label>
+          </div>
+
+          <button type="submit">Hitung & Simpan Profil</button>
+        </form>
+      </div>
+
+      <div class="card">
+        <h2>Hasil Kalkulasi</h2>
+        <div class="result-grid">
+          <div><small>BMI</small><strong id="bmi">-</strong><span id="bmiStatus">Isi profil dulu</span></div>
+          <div><small>BMR</small><strong id="bmr">-</strong><span>kalori basal</span></div>
+          <div><small>TDEE</small><strong id="tdee">-</strong><span>maintenance</span></div>
+          <div><small>Target Kalori</small><strong id="targetCalories">-</strong><span>per hari</span></div>
+        </div>
+
+        <div class="macro-box">
+          <h3>Target Makro Otomatis</h3>
+          <div class="macro-list">
+            <p><b>Protein</b><span id="targetProtein">-</span></p>
+            <p><b>Lemak</b><span id="targetFat">-</span></p>
+            <p><b>Karbo</b><span id="targetCarbs">-</span></p>
+          </div>
+          <p class="hint">Default: protein 1.8g/kg, lemak 25% kalori, sisa kalori jadi karbo.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid two">
+      <div class="card">
+        <h2>Tambah Makanan</h2>
+        <form id="mealForm" class="form">
+          <label>Tanggal <input type="date" id="mealDate" required /></label>
+          <label>Nama makanan <input type="text" id="food" placeholder="Ayam panggang" required /></label>
+          <div class="row">
+            <label>Kalori <input type="number" id="calories" min="0" required /></label>
+            <label>Protein (g) <input type="number" id="protein" min="0" value="0" /></label>
+          </div>
+          <div class="row">
+            <label>Karbo (g) <input type="number" id="carbs" min="0" value="0" /></label>
+            <label>Lemak (g) <input type="number" id="fat" min="0" value="0" /></label>
+          </div>
+          <button type="submit">Tambah ke Log</button>
+        </form>
+      </div>
+
+      <div class="card">
+        <div class="toolbar">
+          <h2>Ringkasan Harian</h2>
+          <input type="date" id="filterDate" />
+        </div>
+
+        <div class="daily-stats six">
+          <div><strong id="sumCalories">0</strong><small>kalori masuk</small></div>
+          <div><strong id="burnedCalories">0</strong><small>kalori keluar</small></div>
+          <div><strong id="netCalories">0</strong><small>kalori bersih</small></div>
+          <div><strong id="remainCalories">0</strong><small>sisa target</small></div>
+          <div><strong id="sumProtein">0g</strong><small>protein</small></div>
+          <div><strong id="sumCarbs">0g</strong><small>karbo</small></div>
+          <div><strong id="sumFat">0g</strong><small>lemak</small></div>
+        </div>
+
+        <div class="progress-wrap">
+          <div class="progress-label">
+            <span>Progress kalori masuk</span>
+            <span id="progressText">0%</span>
+          </div>
+          <div class="progress"><div id="progressBar"></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="toolbar">
+        <h2>Log Makanan</h2>
+        <button id="clearDayBtn" class="danger">Hapus Hari Ini</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Makanan</th>
+              <th>Kalori</th>
+              <th>Protein</th>
+              <th>Karbo</th>
+              <th>Lemak</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="mealTable"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="grid two">
+      <div class="card">
+        <h2>Tambah Olahraga</h2>
+        <form id="workoutForm" class="form">
+          <label>Nama olahraga <input type="text" id="workoutName" placeholder="Gym / Jogging / Jalan kaki" required /></label>
+          <div class="row">
+            <label>Durasi (menit) <input type="number" id="workoutDuration" min="1" placeholder="30" required /></label>
+            <label>Kalori terbakar <input type="number" id="workoutCalories" min="0" placeholder="250" required /></label>
+          </div>
+          <button type="submit">Tambah Olahraga</button>
+        </form>
+      </div>
+
+      <div class="card">
+        <div class="toolbar">
+          <h2>Log Olahraga</h2>
+          <button id="clearWorkoutDayBtn" class="danger">Hapus Olahraga Hari Ini</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Olahraga</th>
+                <th>Durasi</th>
+                <th>Kalori Terbakar</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="workoutTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="card note">
+      <h2>Catatan</h2>
+      <p>Kalori bersih = kalori masuk - kalori keluar dari olahraga. Ini bukan pengganti saran dokter/ahli gizi. Angka BMR/TDEE adalah estimasi. Pantau progres berat 2-4 minggu lalu adjust kalori kalau perlu.</p>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
